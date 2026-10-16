@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --forge-bg: #0B0C12;
+  --forge-panel: #12141D;
+  --forge-subpanel: #191C28;
+  --forge-primary: #8065F5;
+  --forge-accent: #A995FF;
+  --forge-text: #F5F5FA;
+  --forge-muted: #9699AC;
+  --forge-border: #292C3B;
+}
+
+@theme {
+  --color-forge-bg: #0B0C12;
+  --color-forge-panel: #12141D;
+  --color-forge-subpanel: #191C28;
+  --color-forge-primary: #8065F5;
+  --color-forge-accent: #A995FF;
+  --color-forge-text: #F5F5FA;
+  --color-forge-muted: #9699AC;
+  --color-forge-border: #292C3B;
+}
+
+body {
+  background-color: #0B0C12;
+  color: #F5F5FA;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #0B0C12;
+}
+::-webkit-scrollbar-thumb {
+  background: #292C3B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8065F5;
+}
+
+/* Code editor typography */
+.font-mono-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
