@@ -1,0 +1,6 @@
+{
+  "name": "CodeForge",
+  "description": "Plataforma de inteligência artificial para desenvolvimento de jogos (Roblox Luau, Unity C#, Godot, Unreal) e engenharia multi-linguagem Multi-Dev (Web, Software, Mobile, Bancos de Dados).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
