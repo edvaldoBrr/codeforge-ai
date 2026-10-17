@@ -5,7 +5,9 @@ const serverlessHandler = serverless(app);
 
 export const handler = async (event: any, context: any) => {
   // Handle Netlify function path mapping
-  // If request hits /.netlify/functions/api/... or /api/...
+  if (event.rawPath && event.rawPath.startsWith('/.netlify/functions/api')) {
+    event.rawPath = event.rawPath.replace('/.netlify/functions/api', '/api');
+  }
   if (event.path) {
     if (event.path.startsWith('/.netlify/functions/api')) {
       const remaining = event.path.replace('/.netlify/functions/api', '');

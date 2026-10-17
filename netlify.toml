@@ -8,6 +8,7 @@
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
 # Suporte a SPA (Single Page Application) para o frontend React
 [[redirects]]

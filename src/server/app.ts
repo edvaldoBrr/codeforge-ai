@@ -14,9 +14,29 @@ const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '5mb' }));
 
+// Normaliza rotas para suportar execução de funções serverless do Netlify sem interferir nos assets do Vite
+app.use((req, res, next) => {
+  if (req.url.startsWith('/.netlify/functions/api')) {
+    const withoutPrefix = req.url.replace(/^\/\.netlify\/functions\/api/, '') || '/';
+    req.url = withoutPrefix.startsWith('/api') ? withoutPrefix : '/api' + (withoutPrefix.startsWith('/') ? withoutPrefix : '/' + withoutPrefix);
+  }
+  next();
+});
+
+// Helper para obter a chave do Gemini em múltiplos formatos aceitos
+export const getApiKey = () => {
+  return (
+    process.env.GEMINI_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.API_KEY ||
+    ''
+  );
+};
+
 // Helper to check Gemini key
 const getAiClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = getApiKey();
   if (!apiKey) {
     return null;
   }
@@ -135,14 +155,14 @@ function rateLimiter(req: express.Request, res: express.Response, next: express.
 
 app.use('/api', rateLimiter);
 
-// Status endpoint
-app.get('/api/status', (req, res) => {
-  const hasKey = Boolean(process.env.GEMINI_API_KEY);
+// Status endpoint (suporta tanto /api/status quanto /status diretamente)
+app.get(['/api/status', '/status'], (req, res) => {
+  const hasKey = Boolean(getApiKey());
   res.json({
     ready: true,
     hasKey,
     model: 'gemini-3.8-flash',
-    platform: 'Roblox Luau Toolkit',
+    platform: 'CodeForge Multi-Dev & Game Engine',
   });
 });
 

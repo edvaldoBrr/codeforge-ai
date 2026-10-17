@@ -144,24 +144,32 @@ export default function App() {
     setUnityProjectsCount(getUnityProjects().length);
     setMultidevProjectsCount(getMultiDevProjects().length);
 
-    // Check backend status
-    fetch('/api/status')
-      .then((res) => res.json())
-      .then((data) => {
+    // Check backend status with fallback to Netlify direct function endpoint
+    const verifyStatus = async () => {
+      try {
+        let res = await fetch('/api/status');
+        if (!res.ok) {
+          res = await fetch('/.netlify/functions/api/status');
+        }
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
         setApiStatus({
           ready: Boolean(data.ready),
           hasKey: Boolean(data.hasKey),
           loading: false,
         });
-      })
-      .catch((err) => {
+      } catch (err) {
         console.warn('Backend status check warning:', err);
         setApiStatus({
           ready: false,
           hasKey: false,
           loading: false,
         });
-      });
+      }
+    };
+    verifyStatus();
   }, []);
 
   const handleSelectEngine = (engine: GameEngine) => {
