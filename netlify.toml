@@ -3,10 +3,17 @@
   publish = "dist"
   functions = "netlify/functions"
 
-# Redireciona todas as chamadas /api/* para a Serverless Function do Netlify
+# Redireciona todas as chamadas /api/* para a Serverless Function api.ts do Netlify
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+
+# Permite chamadas diretas a sub-rotas da função
+[[redirects]]
+  from = "/.netlify/functions/api/*"
+  to = "/.netlify/functions/api"
   status = 200
   force = true
 
