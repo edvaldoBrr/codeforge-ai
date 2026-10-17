@@ -163,6 +163,12 @@ app.get(['/api/status', '/status'], (req, res) => {
     hasKey,
     model: 'gemini-3.8-flash',
     platform: 'CodeForge Multi-Dev & Game Engine',
+    envStatus: {
+      hasGeminiApiKey: Boolean(process.env.GEMINI_API_KEY),
+      hasViteGeminiApiKey: Boolean(process.env.VITE_GEMINI_API_KEY),
+      hasGoogleApiKey: Boolean(process.env.GOOGLE_API_KEY),
+      hasApiKey: Boolean(process.env.API_KEY),
+    },
   });
 });
 

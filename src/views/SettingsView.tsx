@@ -10,6 +10,9 @@ import {
   Info,
   Sliders,
   Sparkles,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 import { UserPreferences } from '../types/codeforge';
 import { getStorageStats, clearAllLocalData } from '../utils/storage';
@@ -35,6 +38,48 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
   const [stats, setStats] = useState(getStorageStats());
   const [confirmClear, setConfirmClear] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
+  const [diagnosticReport, setDiagnosticReport] = useState<{
+    status: number;
+    hasKey: boolean;
+    envStatus?: Record<string, boolean>;
+    message: string;
+  } | null>(null);
+
+  const handleTestConnection = async () => {
+    setIsTesting(true);
+    setDiagnosticReport(null);
+    try {
+      let res = await fetch('/api/status');
+      if (!res.ok) {
+        res = await fetch('/.netlify/functions/api/status');
+      }
+      const data = await res.json().catch(() => ({}));
+      const hasKey = Boolean(data?.hasKey);
+      setDiagnosticReport({
+        status: res.status,
+        hasKey,
+        envStatus: data?.envStatus,
+        message: hasKey
+          ? 'Conexão com Gemini 3.8 Flash ativa e pronta para uso!'
+          : 'O servidor respondeu, mas a chave GEMINI_API_KEY não foi encontrada nas variáveis de ambiente.',
+      });
+      if (hasKey) {
+        showToast('success', 'Gemini 3.8 Flash conectado com sucesso!');
+      } else {
+        showToast('warning', 'Servidor online, mas GEMINI_API_KEY ausente.');
+      }
+    } catch (err: any) {
+      setDiagnosticReport({
+        status: 0,
+        hasKey: false,
+        message: `Falha de rede ao conectar à API: ${err?.message || 'Erro desconhecido'}`,
+      });
+      showToast('error', 'Falha ao conectar com o endpoint da API.');
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   const handleClearAll = () => {
     clearAllLocalData();
@@ -150,6 +195,62 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </p>
           </div>
         </div>
+
+        {/* Live Diagnostics & Test Connection Button */}
+        <div className="pt-2 border-t border-[#292C3B]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="text-xs text-[#9699AC]">
+            <span className="font-semibold text-[#F5F5FA]">Status Atual: </span>
+            {apiStatus.hasKey ? (
+              <span className="text-emerald-400 font-semibold inline-flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Chave Conectada
+              </span>
+            ) : (
+              <span className="text-amber-400 font-semibold inline-flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" /> Modo Offline (Chave não detectada)
+              </span>
+            )}
+          </div>
+
+          <button
+            onClick={handleTestConnection}
+            disabled={isTesting}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#8065F5]/10 hover:bg-[#8065F5]/20 text-[#A995FF] border border-[#8065F5]/30 text-xs font-semibold transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isTesting ? 'animate-spin' : ''}`} />
+            <span>{isTesting ? 'Testando Conexão...' : 'Testar Conexão Agora'}</span>
+          </button>
+        </div>
+
+        {diagnosticReport && (
+          <div
+            className={`p-3.5 rounded-xl border text-xs space-y-1.5 ${
+              diagnosticReport.hasKey
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                : 'bg-amber-500/10 border-amber-500/20 text-amber-300'
+            }`}
+          >
+            <div className="flex items-center gap-2 font-bold">
+              {diagnosticReport.hasKey ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-amber-400" />
+              )}
+              <span>
+                {diagnosticReport.status === 200
+                  ? `Resposta HTTP 200 OK (${diagnosticReport.hasKey ? 'Chave Ativa' : 'Sem Chave'})`
+                  : diagnosticReport.status > 0
+                  ? `Resposta HTTP ${diagnosticReport.status}`
+                  : 'Falha de Conexão'}
+              </span>
+            </div>
+            <p className="text-[12px] opacity-90">{diagnosticReport.message}</p>
+            {diagnosticReport.envStatus && (
+              <div className="pt-1.5 text-[11px] font-mono opacity-80 border-t border-current/20">
+                Variáveis verificadas: GEMINI_API_KEY ({diagnosticReport.envStatus.hasGeminiApiKey ? 'Sim' : 'Não'}), VITE_GEMINI_API_KEY ({diagnosticReport.envStatus.hasViteGeminiApiKey ? 'Sim' : 'Não'}), GOOGLE_API_KEY ({diagnosticReport.envStatus.hasGoogleApiKey ? 'Sim' : 'Não'})
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Local Storage & Privacy */}
