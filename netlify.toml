@@ -10,13 +10,6 @@
   status = 200
   force = true
 
-# Permite chamadas diretas a sub-rotas da função
-[[redirects]]
-  from = "/.netlify/functions/api/*"
-  to = "/.netlify/functions/api"
-  status = 200
-  force = true
-
 # Suporte a SPA (Single Page Application) para o frontend React
 [[redirects]]
   from = "/*"
